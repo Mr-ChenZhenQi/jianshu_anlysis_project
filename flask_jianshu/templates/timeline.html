@@ -3,8 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <title>我在简书</title>
+    <link rel="stylesheet" href="../static/css/jquery.fullPage.css">
+    <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.fullPage.js"></script>
+    <script>
+        $(function () {
+            $('#result').fullpage({
+                sectionsColor: '#666'
+            })
+        })
+    </script>
 </head>
 <body>
-xxxx
+    <div id="result">
+        <div class="section" id="base_info">
+            <div align="center">
+                <img id="head_pic" src={{ baseinfo['head_pic'] }} width="168" height="168">
+                <p>您好！&nbsp;<strong style="color:#FA8072">{{ baseinfo['nickname'] }}</strong></p>
+                <p>截止至&nbsp;<b style="color:#FA8072">{{ baseinfo['update_time'] }}</b></p>
+                <p>您在简书关注了<b style="color:#FA8072">{{ baseinfo['like_users_num'] }}</b>个用户，
+                    拥有粉丝<b style="color:#FA8072">{{ baseinfo['followers_num'] }}</b>个。</p>
+                <p>发表文章<b style="color:#FA8072">{{ baseinfo['share_notes_num'] }}</b>篇，
+                    写下文字<b style="color:#FA8072">{{ baseinfo['words_num'] }}</b>个，
+                    文章收获喜欢<b style="color:#FA8072">{{ baseinfo['be_liked_num'] }}</b>个,
+                    喜欢文章<b style="color:#FA8072">{{ baseinfo['like_notes_num'] }}</b>篇</p>
+                <p>关注专题<b style="color:#FA8072">{{ baseinfo['like_colls_num'] }}</b>个，
+                    关注文集<b style="color:#FA8072">{{ baseinfo['like_nbs_num'] }}</b>个。</p>
+                <p>发表评论<b style="color:#FA8072">{{ baseinfo['comment_notes_num'] }}</b>次，
+                    点赞别人评论<b style="color:#FA8072">{{ baseinfo['like_comments_num'] }}</b>次。</p>
+                <p>打赏文章<b style="color:#FA8072">{{ baseinfo['reward_notes_num'] }}</b>次</p>
+            </div>
+        </div>
+        <div class="section">page2</div>
+        <div class="section">page3</div>
+        <div class="section">page4</div>
+    </div>
 </body>
 </html>
