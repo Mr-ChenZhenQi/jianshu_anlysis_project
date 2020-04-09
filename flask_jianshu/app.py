@@ -49,10 +49,9 @@ def jianshu_timeline():
     get_user_dynamic_info(slug)
     au = AnalysisUser(slug)
     user_base_info = au.get_user_base_info()
-    return render_template('timeline.html', baseinfo=user_base_info)
+    first_info=au.get_first_info()
+    return render_template('timeline.html', baseinfo=user_base_info,first_tag_time=first_info)
 if __name__ == '__main__':
     # slug = '2c0dd7ae8db2'
-
-
     app.run()
 

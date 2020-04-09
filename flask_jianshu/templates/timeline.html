@@ -37,7 +37,77 @@
                 <p>打赏文章<b style="color:#FA8072">{{ baseinfo['reward_notes_num'] }}</b>次</p>
             </div>
         </div>
-        <div class="section">page2</div>
+        <div class="section" id="firt_tag_time">
+            <div align="center">
+                <h3>加入简书以来的第一次</h3><br><br>
+                <p>您于<b style="color:#FA8072">{{ first_tag_time['join_time'] }}</b> 注册，加入简书</p>
+                {% if first_tag_time['first_like_user'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_like_user']['time']|safe }}</b>
+                    &nbsp;
+                    <a href="http://www.jianshu.com/u/{{ first_tag_time['first_like_user']['slug']|safe }}"
+                       target="_blank">第一次关注用户</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_share_note'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_share_note']['time']|safe }}</b>
+                    &nbsp;
+                    <a href="http://www.jianshu.com/p/{{ first_tag_time['first_share_note']['note_id']|safe }}"
+                       target="_blank">第一次发表文章</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_like_note'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_like_note']['time']|safe }}</b>
+                    &nbsp;
+                    <a href="http://www.jianshu.com/p/{{ first_tag_time['first_like_note']['note_id']|safe }}"
+                       target="_blank">第一次喜欢文章</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_like_coll'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_like_coll']['time']|safe }}</b>
+                    &nbsp;
+                    <a href="http://www.jianshu.com/c/{{ first_tag_time['first_like_coll']['coll_id']|safe }}"
+                       target="_blank">第一次关注专题</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_like_nb'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_like_nb']['time']|safe }}</b>
+                    &nbsp;
+                    <a href="http://www.jianshu.com/nb/{{ first_tag_time['first_like_nb']['notebook_id']|safe }}"
+                       target="_blank">第一次关注文集</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_comment'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_comment']['time']|safe }}</b>
+                    &nbsp;第一次发表评论:
+                    <a href="http://www.jianshu.com/p/{{ first_tag_time['first_comment']['note_id']|safe }}"
+                       target="_blank">{{ first_tag_time['first_comment']['comment_text']|safe }}</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_like_comment'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_like_comment']['time']|safe }}</b>
+                    &nbsp;第一次赞了评论:
+                    <a href="http://www.jianshu.com/p/{{ first_tag_time['first_like_comment']['note_id']|safe }}"
+                       target="_blank">{{ first_tag_time['first_like_comment']['comment_text']|safe }}</a>
+                </p>
+                {% endif %}
+                {% if first_tag_time['first_reward_note'] %}
+                <p>
+                    <b style="color:#FA8072">{{ first_tag_time['first_reward_note']['time']|safe }}</b>
+                    &nbsp;
+                    <a href="http://www.jianshu.com/p/{{ first_tag_time['first_reward_note']['note_id']|safe }}"
+                       target="_blank">第一次打赏文章</a>
+                </p>
+                {% endif %}
+
+            </div>
+        </div>
         <div class="section">page3</div>
         <div class="section">page4</div>
     </div>

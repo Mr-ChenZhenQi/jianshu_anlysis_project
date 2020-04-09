@@ -26,3 +26,37 @@ class AnalysisUser:
                     }
         # print(baseinfo)
         return baseinfo
+
+    def extract_first_tag_time(self,data_list):
+        if len(data_list) > 0:
+            sorted_lst = sorted(data_list, key=lambda obj: obj['time'])
+            first_element = sorted_lst[0]
+            return first_element
+        else:
+            return None
+
+    def get_first_info(self):
+        first_tag_time={
+            'join_time':self.user_data['join_time'],
+            'first_like_user': self.extract_first_tag_time(self.user_data['like_user']),
+            'first_share_note': self.extract_first_tag_time(self.user_data['share_note']),
+            'first_like_note': self.extract_first_tag_time(self.user_data['like_note']),
+            'first_like_coll': self.extract_first_tag_time(self.user_data['like_collection']),
+            'first_like_nb': self.extract_first_tag_time(self.user_data['like_notebook']),
+            'first_comment': self.extract_first_tag_time(self.user_data['comment_note']),
+            'first_like_comment': self.extract_first_tag_time(self.user_data['like_comment']),
+            'first_reward_note': self.extract_first_tag_time(self.user_data['reward_note']),
+
+        }
+        return first_tag_time
+
+
+
+
+
+
+
+
+
+
+
