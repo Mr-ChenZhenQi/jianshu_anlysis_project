@@ -54,13 +54,17 @@ def jianshu_timeline():
     month_data_dic = au.get_month_data()
     day_data_dic = au.get_day_data()
     hour_data_dic = au.get_hour_data()
+    week_data_dic = au.get_week_data()
+    week_hour_dic = au.get_week_hour_data()
     return render_template('timeline.html',
                            baseinfo=user_base_info,
                            first_tag_time=first_info,
                            tags_data=tags_data,
                            month_data_dic = month_data_dic,
                            day_data_dic=day_data_dic,
-                           hour_data_dic=hour_data_dic
+                           hour_data_dic=hour_data_dic,
+                           week_data_dic=week_data_dic,
+                           week_hour_dic=week_hour_dic
                            )
 if __name__ == '__main__':
     # slug = '2c0dd7ae8db2'

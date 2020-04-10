@@ -356,27 +356,154 @@
 
         </script>
     </div>
-        <!--<div id="month_data" style="width: 100%;height:600px;"></div>-->
-        <!--<script type="text/javascript">-->
-                <!--// 基于准备好的dom，初始化echarts实例-->
-                <!--var myChart = echarts.init(document.getElementById('month_data'));-->
-                <!--option = {-->
-                    <!--xAxis: {-->
-                        <!--type: 'category',-->
-                        <!--data: ['2017-05', '2017-06', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']-->
-                    <!--},-->
-                    <!--yAxis: {-->
-                        <!--type: 'value'-->
-                    <!--},-->
-                    <!--series: [{-->
-                        <!--data: [820, 932, 901, 934, 1290, 1330, 1320],-->
-                        <!--type: 'line'-->
-                    <!--}]-->
-                <!--};-->
+        <div class="section" id="all_week">
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+        <div id="weekline_chart" style="width:100%;height:600px;"></div>
+        <script type="text/javascript">
+            // 基于准备好的dom，初始化echarts实例
+            var myChart4 = echarts.init(document.getElementById('weekline_chart'));
 
-                <!--// 使用刚指定的配置项和数据显示图表。-->
-                <!--myChart.setOption(option);-->
-              <!--</script>-->
+            // 指定图表的配置项和数据
+
+            var option = {
+                tooltip : {
+                    trigger: 'axis',
+                    axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                        type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                title: {
+                            left: 'center',
+                            text: '一周中的动态情况',
+                            subtext:'数据来源: www.jianshu.com'
+                        },
+                grid: {
+                    left: '7%',
+                    right: '8%',
+                    bottom: '8%'
+
+                },
+                xAxis : [
+                    {
+                        type : 'category',
+                        data : {{ week_data_dic['week']|tojson }},
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    }
+                ],
+                yAxis : [
+                    {
+                        type : 'value',
+                        name:'动态次数'
+                    }
+                ],
+                series : [
+                    {
+                        name:'动态次数',
+                        type:'bar',
+                        barWidth: '50%',
+                        data:{{ week_data_dic['frequency']|tojson }},
+                        itemStyle: {
+                            normal: {
+                                color: function(params) {
+                                　//首先定义一个数组
+                                var colorList = [
+                                '#C33531','#EFE42A','#64BD3D','#EE9201','#29AAE3',
+                                '#B74AE5','#0AAF9F','#E89589'
+                                ];
+                                return colorList[params.dataIndex]
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+
+            //*必须，绑定图表自适应功能
+           window.onresize = function () {
+               myChart4.resize();
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart4.setOption(option);
+
+        </script>
+    </div>
+        <div class="section" id="share_note_week_hour">
+        <div align="center">
+            <h4>一周中点赞文章时间频率分布</h4>
+            <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+            <div id="share_note_week_hour_chart" style="width:100%;height:580px;"></div>
+            <script type="text/javascript">
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('share_note_week_hour_chart'));
+
+                // 指定图表的配置项和数据
+
+                var hours = ['12am', '1am', '2am', '3am', '4am', '5am', '6am',
+                        '7am', '8am', '9am','10am','11am',
+                        '12pm', '1pm', '2pm', '3pm', '4pm', '5pm',
+                        '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'];
+                var days = ['周一', '周二',
+                        '周三', '周四', '周五', '周六','周日'];
+
+                var data = {{week_hour_dic['week_hour'] | tojson}}
+
+                var option = {
+                    tooltip: {
+                        position: 'left'
+                    },
+                    title: [],
+                    color:['#FF6666','#EFE42A','#64BD3D','#EE9201','#29AAE3',
+                    '#B74AE5','#0AAF9F','#E89589'],
+                    singleAxis: [],
+                    series: []
+                };
+
+                echarts.util.each(days, function (day, idx) {
+                    option.title.push({
+                        textBaseline: 'middle',
+                        top: (idx + 0.5) * 100 / 7 + '%',
+                        text: day
+                    });
+                    option.singleAxis.push({
+                        left: 120,
+                        type: 'category',
+                        boundaryGap: false,
+                        data: hours,
+                        top: (idx * 100 / 7 + 5) + '%',
+                        height: (100 / 7 - 10) + '%',
+                        axisLabel: {
+                            interval: 2
+                        }
+                    });
+                    option.series.push({
+                        singleAxisIndex: idx,
+                        coordinateSystem: 'singleAxis',
+                        type: 'scatter',
+                        data: [],
+                        symbolSize: function (dataItem) {
+                            return dataItem[1]/{{week_hour_dic['max_freq']}} * 100;
+                        }
+                    });
+                });
+
+                echarts.util.each(data, function (dataItem) {
+                    option.series[dataItem[0]].data.push([dataItem[1], dataItem[2]]);
+                });
+
+                //*必须，绑定图表自适应功能
+               window.onresize = function () {
+                   myChart.resize();
+                };
+
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+
+            </script>
+    </div>
+    </div>
     </div>
 </body>
 </html>

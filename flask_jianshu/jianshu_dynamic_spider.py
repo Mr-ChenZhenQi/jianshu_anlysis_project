@@ -59,7 +59,7 @@ class JianshuSpider:
             for li in lis:
                 obj = {}
                 data_type = li.xpath('.//@data-type')[0]
-                data_time = li.xpath('.//@data-datetime')[0].replace('T', '').replace('+08:00', '')
+                data_time = li.xpath('.//@data-datetime')[0].replace('T', ' ').replace('+08:00', '')
 
                 if self.lastest_time == data_time:
                     return

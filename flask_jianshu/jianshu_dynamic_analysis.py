@@ -1,8 +1,6 @@
 from collections import Counter
-
+from datetime import datetime
 import pymongo
-import numpy as np
-import pandas as pd
 
 class AnalysisUser:
     def __init__(self,slug):
@@ -119,7 +117,68 @@ class AnalysisUser:
 
         return dic
 
+    def date_to_week(self, strdate):
+        week_day_dict = {0: '0周一', 1: '1周二', 2: '2周三', 3: '3周四',
+                         4: '4周五', 5: '5周六', 6: '6周日'}
+        timeobj = datetime.strptime(strdate, '%Y-%m-%d %H:%M:%S')
+        print(timeobj.weekday())
+        return week_day_dict[timeobj.weekday()]
+
+    def date_to_week_other(self, strdate):
+        timeobj = datetime.strptime(strdate, '%Y-%m-%d %H:%M:%S')
+        print(timeobj.weekday())
+        return str(timeobj.weekday())
 
 
+    def get_week_data(self):
+        all_time_lst = []
+        for type in self.en_parent_tags:
+            type_lst = [self.date_to_week(obj['time']) for obj in self.user_data[type]]
+            all_time_lst.extend(type_lst)
 
+        # print(all_time_lst)
+        # print(len(all_time_lst))
+        counter = Counter(all_time_lst)
+        # print(counter.items())
+        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
+        month_lst = [item[0][1:] for item in sorted_lst]
+        frequency_lst = [item[1] for item in sorted_lst]
 
+        dic = {}
+        dic['week'] = month_lst
+        dic['frequency'] = frequency_lst
+
+        return dic
+
+    def get_week_hour_data(self):
+
+        like_note_lst = [(self.date_to_week_other(obj['time']) + obj['time'][11:13]) for obj in
+                         self.user_data['like_note']]
+
+        # print(all_time_lst)
+        # print(len(all_time_lst))
+        counter = Counter(like_note_lst)
+        maxFreq = counter.most_common(1)[0][1]
+        print(maxFreq)
+        # print(counter.items())
+        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
+        print(sorted_lst)
+        # [('005', 2), ('006', 3), ('007', 12), ('008', 6), ('009', 7), ('010', 12), ('011', 18)]
+        # [[0,05,2],[0,06,3]]
+        lst = []
+        for tp in sorted_lst:
+            lstTmp = [int(tp[0][0]), int(tp[0][1:]), tp[1]]
+            lst.append(lstTmp)
+
+        print(lst)
+        # month_lst = [item[0][1:] for item in sorted_lst]
+        # frequency_lst = [item[1] for item in sorted_lst]
+        # [[1,8,45],[2,12,23]]
+        dic = {}
+        dic['week_hour'] = lst
+        dic['max_freq'] = maxFreq
+
+        return dic
+
+    def get_comment_data(self):
+        pass
