@@ -50,7 +50,18 @@ def jianshu_timeline():
     au = AnalysisUser(slug)
     user_base_info = au.get_user_base_info()
     first_info=au.get_first_info()
-    return render_template('timeline.html', baseinfo=user_base_info,first_tag_time=first_info)
+    tags_data = au.get_tags_data()
+    month_data_dic = au.get_month_data()
+    day_data_dic = au.get_day_data()
+    hour_data_dic = au.get_hour_data()
+    return render_template('timeline.html',
+                           baseinfo=user_base_info,
+                           first_tag_time=first_info,
+                           tags_data=tags_data,
+                           month_data_dic = month_data_dic,
+                           day_data_dic=day_data_dic,
+                           hour_data_dic=hour_data_dic
+                           )
 if __name__ == '__main__':
     # slug = '2c0dd7ae8db2'
     app.run()
