@@ -1,5 +1,7 @@
 from collections import Counter
 from datetime import datetime
+
+import jieba
 import pymongo
 
 class AnalysisUser:
@@ -180,5 +182,32 @@ class AnalysisUser:
 
         return dic
 
-    def get_comment_data(self):
-        pass
+    def get_comments(self):
+        comments = self.user_data['comment_note']
+        count = len(self.user_data['comment_note'])
+        commentlst = [obj['comment_text'] for obj in comments]
+        comment_txt = ''.join(commentlst)
+        word_lst = jieba.cut(comment_txt)
+        # print(list(word_lst))
+        wordlstnew = []
+        for w in word_lst:
+            if len(w) >= 2:
+                wordlstnew.append(w)
+
+        counter = Counter(wordlstnew)
+        print(counter.items())
+        # [('谢谢', 2), ('分享', 2), ('金山', 1), ('794c', 1), ('可以', 1)]
+
+        lst = []
+        for tp in counter.items():
+            dic = {
+                "name": tp[0],
+                "value": tp[1]
+            }
+            lst.append(dic)
+
+        dic_return = {}
+        dic_return['count'] = count
+        dic_return['word_cloud'] = lst
+
+        return dic_return

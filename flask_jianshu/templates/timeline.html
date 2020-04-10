@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../static/css/jquery.fullPage.css">
     <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="../static/js/jquery.fullPage.js"></script>
+    <script type="text/javascript" src='../static/js/echarts-wordcloud.min.js'></script>
     <script>
         $(function () {
             $('#result').fullpage({
@@ -503,6 +504,125 @@
 
             </script>
     </div>
+
+    </div>
+        <div class="section" id="comment_cloud">
+        <div align="center">
+            <h3>共写下评论 {{word_count_dic['count']}} 条，以下词语出现频率较高</h3>
+
+        <div id="word_cloud" style="width:100%;height:600px;"></div>
+        <script type="text/javascript">
+
+            var myChart = echarts.init(document.getElementById('word_cloud'), 'light', {renderer: 'canvas'});
+
+            var option = {
+                "title": [
+                    {
+                        "left": "auto",
+                        "top": "auto",
+                        "textStyle": {
+                            "fontSize": 18
+                        },
+                        "subtextStyle": {
+                            "fontSize": 12
+                        }
+                    }
+                ],
+                "toolbox": {
+                    "show": true,
+                    "orient": "vertical",
+                    "left": "95%",
+                    "top": "center",
+                    "feature": {
+                        "saveAsImage": {
+                            "show": true,
+                            "title": "\u4e0b\u8f7d\u56fe\u7247"
+                        },
+                        "restore": {
+                            "show": true
+                        },
+                        "dataView": {
+                            "show": true
+                        }
+                    }
+                },
+                "series_id": 7907133,
+                "tooltip": {
+                    "trigger": "item",
+                    "triggerOn": "mousemove|click",
+                    "axisPointer": {
+                        "type": "line"
+                    },
+                    "textStyle": {
+                        "fontSize": 14
+                    },
+                    "backgroundColor": "rgba(50,50,50,0.7)",
+                    "borderColor": "#333",
+                    "borderWidth": 0
+                },
+                "series": [
+                    {
+                        "type": "wordCloud",
+                        "shape": "diamond",
+                        "rotationRange": [
+                            0,
+                            0
+                        ],
+                        "rotationStep": 45,
+                        "girdSize": 20,
+                        "sizeRange": [
+                            15,
+                            120
+                        ],
+                        "data": {{word_count_dic['word_cloud']|tojson}}
+                    }
+                ],
+                "legend": [
+                    {
+                        "data": [],
+                        "selectedMode": "multiple",
+                        "show": true,
+                        "left": "center",
+                        "top": "top",
+                        "orient": "horizontal",
+                        "textStyle": {
+                            "fontSize": 12
+                        }
+                    }
+                ],
+                "color": [
+                    "#c23531",
+                    "#2f4554",
+                    "#61a0a8",
+                    "#d48265",
+                    "#749f83",
+                    "#ca8622",
+                    "#bda29a",
+                    "#6e7074",
+                    "#546570",
+                    "#c4ccd3",
+                    "#f05b72",
+                    "#ef5b9c",
+                    "#f47920",
+                    "#905a3d",
+                    "#fab27b",
+                    "#2a5caa",
+                    "#444693",
+                    "#726930",
+                    "#b2d235",
+                    "#6d8346",
+                    "#ac6767",
+                    "#1d953f",
+                    "#6950a1",
+                    "#918597",
+                    "#f6f5ec"
+                ]
+            };
+            myChart.setOption(option);
+
+        </script>
+
+        </div>
     </div>
     </div>
 </body>
