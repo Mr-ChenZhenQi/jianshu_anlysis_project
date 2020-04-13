@@ -6,7 +6,7 @@ from fake_useragent import UserAgent
 from lxml import etree
 
 
-class JianshuSpider:
+class User_bridge_timelineSpider:
     def __init__(self,slug):
         self.slug=slug
         self.client = pymongo.MongoClient(host='localhost')
@@ -19,7 +19,7 @@ class JianshuSpider:
             'Accept': 'text/html, */*; q=0.01',
             'User-Agent': UserAgent().random,
             'Connection': 'keep-alive',
-            # 'Referer': 'http://www.jianshu.com',
+            'Referer': 'http://www.jianshu.com',
         }
 
         self.timeline = {
@@ -52,9 +52,16 @@ class JianshuSpider:
         print(respont)
         tree = etree.HTML(respont.text)
         lis = tree.xpath('.//li')
-        print(len(lis))
-        last_li_id = lis[-1].xpath('@id')[0].replace('feed-', '')
-        maxid = int(last_li_id) - 1
+        # print(len(lis))
+        try:
+            last_li_id = lis[-1].xpath('@id')[0].replace('feed-', '')
+            maxid = int(last_li_id) - 1
+        except IndexError:
+            print('Error:list index out of range')
+        # if last_li_id !=None:
+
+
+
         if lis:
             for li in lis:
                 obj = {}
@@ -74,7 +81,10 @@ class JianshuSpider:
                 obj['time'] = data_time
 
                 if data_type == 'comment_note':
-                    obj['comment_text'] = li.xpath('.//p[@class="comment"]/text()')[0]
+                    try:
+                        obj['comment_text'] = li.xpath('.//p[@class="comment"]/text()')[0]
+                    except IndexError:
+                        print('Error:list index out of range')
                     obj['note_id'] = li.xpath('.//a[@class="title"]/@href')[0].split('/')[-1]
                     # print(obj['note_id'])
                 elif data_type == 'like_note':
@@ -87,7 +97,10 @@ class JianshuSpider:
                     obj['slug'] = li.xpath('.//div[@class="follow-detail"]//a[@class="title"]/@href')[0].split('/')[-1]
                     print(obj['slug'])
                 elif data_type == 'like_comment':
-                    obj['comment_text'] = li.xpath('.//p[@class="comment"]/text()')[0]
+                    try:
+                        obj['comment_text'] = li.xpath('.//p[@class="comment"]/text()')[0]
+                    except IndexError:
+                        print('Error:list index out of range')
                     obj['slug'] = li.xpath('.//blockquote/div/a/@href')[0].split('/')[-1]
                     obj['note_id'] = li.xpath('.//blockquote/div/span/a/@href')[0].split('/')[-1]
                 elif data_type == 'like_notebook':
@@ -98,7 +111,7 @@ class JianshuSpider:
 
             pprint(self.timeline)
 
-        self.get_user_timeline(maxid, page + 1)
+            self.get_user_timeline(maxid, page + 1)
 
     def get_base_info(self):
         url = f'http://www.jianshu.com/u/{self.slug}'
@@ -109,47 +122,43 @@ class JianshuSpider:
             return None
         else:
             tree = etree.HTML(response.text)
-
-            div_main_top = tree.xpath('//div[@class="main-top"]')[0]
-            nickname = div_main_top.xpath('.//div[@class="title"]//a/text()')[0]
-            touxiang=div_main_top.xpath('.//a[@class="avatar"]//img/@src')[0]
-            if touxiang:
+            if tree:
+                div_main_top = tree.xpath('//div[@class="main-top"]')[0]
+                nickname = div_main_top.xpath('.//div[@class="title"]//a/text()')[0]
                 head_pic = div_main_top.xpath('.//a[@class="avatar"]//img/@src')[0]
-            else:
-                head_pic="https://pic4.zhimg.com/50/v2-7fece9a613445edb78271216c8c20c6d_hd.jpg"
-            div_main_top.xpath('.//div[@class="title"]//i/@class')
+                div_main_top.xpath('.//div[@class="title"]//i/@class')
 
-            # 检查用户填写的性别信息。1：男  -1：女  0：性别未填写
-            if div_main_top.xpath('.//i[@class="iconfont ic-man"]'):
-                gender = 1
-            elif div_main_top.xpath('.//i[@class="iconfont ic-woman"]'):
-                gender = -1
-            else:
-                gender = 0
+                # 检查用户填写的性别信息。1：男  -1：女  0：性别未填写
+                if div_main_top.xpath('.//i[@class="iconfont ic-man"]'):
+                    gender = 1
+                elif div_main_top.xpath('.//i[@class="iconfont ic-woman"]'):
+                    gender = -1
+                else:
+                    gender = 0
 
-            # 判断该用户是否为签约作者。is_contract为1是简书签约作者，为0则是普通用户
-            if div_main_top.xpath('.//i[@class="iconfont ic-write"]'):
-                is_contract = 1
-            else:
-                is_contract = 0
+                # 判断该用户是否为签约作者。is_contract为1是简书签约作者，为0则是普通用户
+                if div_main_top.xpath('.//i[@class="iconfont ic-write"]'):
+                    is_contract = 1
+                else:
+                    is_contract = 0
 
-            # 取出用户文章及关注量
-            info = div_main_top.xpath('.//li//p//text()')
+                # 取出用户文章及关注量
+                info = div_main_top.xpath('.//li//p//text()')
 
-            item = {'nickname': nickname,
-                    'slug': self.slug,
-                    'head_pic': head_pic,
-                    'gender': gender,
-                    'is_contract': is_contract,
-                    'following_num': int(info[0]),
-                    'followers_num': int(info[1]),
-                    'articles_num': int(info[2]),
-                    'words_num': int(info[3]),
-                    'be_liked_num': int(info[4]),
-                    'update_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    }
-            # 取当前抓取时间，为用户信息更新时间。添加update_time字段
-            return item
+                item = {'nickname': nickname,
+                        'slug': self.slug,
+                        'head_pic': head_pic,
+                        'gender': gender,
+                        'is_contract': is_contract,
+                        'following_num': int(info[0]),
+                        'followers_num': int(info[1]),
+                        'articles_num': int(info[2]),
+                        'words_num': int(info[3]),
+                        'be_liked_num': int(info[4]),
+                        'update_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                        }
+                # 取当前抓取时间，为用户信息更新时间。添加update_time字段
+                return item
     def get_lastest_time(self):
         result = self.db['user_timeline'].find_one({'slug': self.slug}, {'latest_time': 1})
         if result != None:
@@ -172,8 +181,8 @@ class JianshuSpider:
 
 
 if __name__ == '__main__':
-    slug = '2c0dd7ae8db2'
-    js = JianshuSpider(slug)
+    slug = '9da11ca1fa6c'
+    js = User_bridge_timelineSpider(slug)
     js.get_lastest_time()
 
     item = js.get_base_info()

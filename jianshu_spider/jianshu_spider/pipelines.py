@@ -25,6 +25,7 @@ class JianshuSpiderPipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
+        # 发现则不插入
         self.db[self.collection_name].update({'slug':item['slug']},{'$setOnInsert':item},upsert=True)
         return item
 

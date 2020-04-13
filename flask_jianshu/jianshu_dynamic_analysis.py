@@ -3,7 +3,7 @@ from datetime import datetime
 
 import jieba
 import pymongo
-
+import pandas as pd
 class AnalysisUser:
     def __init__(self,slug):
         self.client = pymongo.MongoClient(host='localhost')
@@ -13,6 +13,13 @@ class AnalysisUser:
         self.zh_parent_tags = ['发表评论', '喜欢文章', '赞赏文章', '发表文章', '关注用户', '关注专题', '点赞评论', '关注文集']
         self.en_parent_tags = ['comment_note', 'like_note', 'reward_note', 'share_note', 'like_user', 'like_collection',
                            'like_comment', 'like_notebook']
+        df_lst = []
+        for tag in self.en_parent_tags:
+            df = pd.DataFrame(self.user_data[tag])
+            df_lst.append(df)
+
+        self.df = pd.concat(df_lst)
+
     def get_user_base_info(self):
         baseinfo = {'head_pic': self.user_data['head_pic'],
                     'nickname': self.user_data['nickname'],
@@ -59,63 +66,96 @@ class AnalysisUser:
         tags_data=[dict(tags_zh_name_lst[i],**tags_values[i]) for i in range(len(tags_values))]
         return tags_data
 
-    def get_month_data(self):
-        all_time_lst = []
-        for type in self.en_parent_tags:
-            type_lst = [obj['time'][0:7] for obj in self.user_data[type]]
-            all_time_lst.extend(type_lst)
-
-        # print(all_time_lst)
-        # print(len(all_time_lst))
-        counter = Counter(all_time_lst)
-        # print(counter.items())
-        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
-        month_lst = [item[0] for item in sorted_lst]
-        frequency_lst = [item[1] for item in sorted_lst]
+    def get_month_data_pd(self):
+        dt_index = pd.to_datetime(list(self.df.time))
+        # print(dt_index)
+        # print(len(dt_index))
+        ts = pd.Series([1] * len(dt_index), index=dt_index)
+        # print(ts)
+        tsday = ts.resample("1M").sum()
+        # print(tsday[tsday > 0].index)
+        lstMonth = [x.strftime('%Y-%m') for x in tsday[tsday > 0].index]
+        print(lstMonth)
+        lst_freq = list(tsday[tsday > 0].values)
+        print(lst_freq)
 
         dic = {}
-        dic['month'] = month_lst
-        dic['frequency'] = frequency_lst
+        dic['month'] = lstMonth
+        dic['frequency'] = list(map(int, lst_freq))
 
         return dic
 
-    def get_day_data(self):
-        all_time_lst = []
-        for type in self.en_parent_tags:
-            type_lst = [obj['time'][0:10] for obj in self.user_data[type]]
-            all_time_lst.extend(type_lst)
-
-        # print(all_time_lst)
-        # print(len(all_time_lst))
-        counter = Counter(all_time_lst)
-        # print(counter.items())
-        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
-        month_lst = [item[0] for item in sorted_lst]
-        frequency_lst = [item[1] for item in sorted_lst]
+    def get_day_data_pd(self):
+        dt_index = pd.to_datetime(list(self.df.time))
+        # print(dt_index)
+        # print(len(dt_index))
+        ts = pd.Series([1] * len(dt_index), index=dt_index)
+        # print(ts)
+        tsday = ts.resample("1D").sum()
+        # print(tsday[tsday > 0].index)
+        lstDay = [x.strftime('%Y-%m-%d') for x in tsday[tsday > 0].index]
+        print(lstDay)
+        lst_freq = list(tsday[tsday > 0].values)
+        print(lst_freq)
 
         dic = {}
-        dic['day'] = month_lst
-        dic['frequency'] = frequency_lst
+        dic['day'] = lstDay
+        dic['frequency'] = list(map(int, lst_freq))
 
         return dic
 
-    def get_hour_data(self):
-        all_time_lst = []
-        for type in self.en_parent_tags:
-            type_lst = [obj['time'][11:13] for obj in self.user_data[type]]
-            all_time_lst.extend(type_lst)
+    def get_hour_data_pd(self):
+        dti = pd.to_datetime(self.df.time).to_frame()
+        print(dti)
+        dayofweek_group = dti.groupby(dti['time'].map(lambda x: x.hour)).count()
 
-        # print(all_time_lst)
-        # print(len(all_time_lst))
-        counter = Counter(all_time_lst)
-        # print(counter.items())
-        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
-        month_lst = [item[0] for item in sorted_lst]
-        frequency_lst = [item[1] for item in sorted_lst]
+        lst_freq = [int(item) for item in dayofweek_group.values]
+        lst_dayofweek = [str(item).rjust(2, '0') + ':00' for item in dayofweek_group.index]
 
         dic = {}
-        dic['hour'] = month_lst
-        dic['frequency'] = frequency_lst
+        dic['hour'] = lst_dayofweek
+        dic['frequency'] = lst_freq
+
+        return dic
+
+    def get_week_data_pd(self):
+        dti = pd.to_datetime(self.df.time).to_frame()
+        print(dti)
+        dayofweek_group = dti.groupby(dti['time'].map(lambda x: x.dayofweek)).count()
+        week_day_dict = {0: '周一', 1: '周二', 2: '周三', 3: '周四',
+                         4: '周五', 5: '周六', 6: '周日', }
+
+        lst_freq = [int(item) for item in dayofweek_group.values]
+        lst_dayofweek = [week_day_dict[item] for item in dayofweek_group.index]
+
+        dic = {}
+        dic['week'] = lst_dayofweek
+        dic['frequency'] = lst_freq
+
+        return dic
+
+    def get_week_hour_data_pd(self):
+        dti = pd.to_datetime(self.df.time).to_frame()
+        print(dti)
+        gg = dti.groupby(
+            [dti['time'].map(lambda x: x.dayofweek).rename('dayofweek'),
+             dti['time'].map(lambda x: x.hour).rename('hour')])
+
+        g_count = gg.count()
+
+        lst_week_hour_data = []
+        max_freq = 0
+        for name, grp in gg:
+            print(name)  # (周几,几点)
+            freq = g_count.loc[name].values[0]  # 频率，次数
+            if max_freq < freq:
+                max_freq = freq
+            tmp_lst = [int(name[0]), int(name[1]), int(freq)]
+            lst_week_hour_data.append(tmp_lst)
+
+        dic = {}
+        dic['week_hour'] = lst_week_hour_data
+        dic['max_freq'] = max_freq
 
         return dic
 
@@ -130,57 +170,6 @@ class AnalysisUser:
         timeobj = datetime.strptime(strdate, '%Y-%m-%d %H:%M:%S')
         print(timeobj.weekday())
         return str(timeobj.weekday())
-
-
-    def get_week_data(self):
-        all_time_lst = []
-        for type in self.en_parent_tags:
-            type_lst = [self.date_to_week(obj['time']) for obj in self.user_data[type]]
-            all_time_lst.extend(type_lst)
-
-        # print(all_time_lst)
-        # print(len(all_time_lst))
-        counter = Counter(all_time_lst)
-        # print(counter.items())
-        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
-        month_lst = [item[0][1:] for item in sorted_lst]
-        frequency_lst = [item[1] for item in sorted_lst]
-
-        dic = {}
-        dic['week'] = month_lst
-        dic['frequency'] = frequency_lst
-
-        return dic
-
-    def get_week_hour_data(self):
-
-        like_note_lst = [(self.date_to_week_other(obj['time']) + obj['time'][11:13]) for obj in
-                         self.user_data['like_note']]
-
-        # print(all_time_lst)
-        # print(len(all_time_lst))
-        counter = Counter(like_note_lst)
-        maxFreq = counter.most_common(1)[0][1]
-        print(maxFreq)
-        # print(counter.items())
-        sorted_lst = sorted(counter.items(), key=lambda x: x[0])
-        print(sorted_lst)
-        # [('005', 2), ('006', 3), ('007', 12), ('008', 6), ('009', 7), ('010', 12), ('011', 18)]
-        # [[0,05,2],[0,06,3]]
-        lst = []
-        for tp in sorted_lst:
-            lstTmp = [int(tp[0][0]), int(tp[0][1:]), tp[1]]
-            lst.append(lstTmp)
-
-        print(lst)
-        # month_lst = [item[0][1:] for item in sorted_lst]
-        # frequency_lst = [item[1] for item in sorted_lst]
-        # [[1,8,45],[2,12,23]]
-        dic = {}
-        dic['week_hour'] = lst
-        dic['max_freq'] = maxFreq
-
-        return dic
 
     def get_comments(self):
         comments = self.user_data['comment_note']
