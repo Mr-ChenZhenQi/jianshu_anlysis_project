@@ -36,5 +36,6 @@ class User_bridge_timeline:
         else:
             pass
 if __name__ == '__main__':
+    print('程序开始啦！！')
     u=User_bridge_timeline()
     u.get_user_id()
